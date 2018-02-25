@@ -34,7 +34,7 @@ def main():
 	#This is in seconds the maximum video length we want to download..
 	#Cropping happens after download so decreasing this will speed up download
 	#but decrease datasize
-	maxVideoLength = 600
+	maxVideoLength = 1200
 
 	#Create all the folders!!!
 	createFolder("data/test")
@@ -146,21 +146,22 @@ def main():
 			if not supported(link):
 				continue
 
+
 			#See if this video is for us!!!
 			for i in range(0, len(ourClasses)):
 				for c in youtubeClassesID[i]:
 					if c in labelsID:
 						path_audio = "data/train/rawAudio/" + ourClasses[i] + "/" + vidID + ".mp3"
-						if os.path.isfile(path_audio):
+						if os.path.exists(path_audio):
 							continue
-
-						#Download Youtube Video!!
-						print("Downloading " + ourClasses[i] + "( " + c + " ): " + link)
 
 						#use pafy to check duration!!!
 						video = pafy.new(link)
 						if( video.length > maxVideoLength):
-							break
+							continue
+
+						#Download Youtube Video!!
+						print("Downloading " + ourClasses[i] + "( " + c + " ): " + link)
 
 						ydl_opts = {
 						'format': 'bestaudio/best',
@@ -209,16 +210,18 @@ def main():
 				for c in youtubeClassesID[i]:
 					if c in labelsID:
 						path_audio = "data/test/rawAudio/" + ourClasses[i] + "/" + vidID + ".mp3"
-						if os.path.isfile(path_audio):
+						
+						if os.path.exists(path_audio):
 							continue
-
-						#Download Youtube Video!!
-						print("Downloading " + ourClasses[i] + "( " + c + " ): " + link)
 
 						#use pafy to check duration!!!
 						video = pafy.new(link)
 						if( video.length > maxVideoLength):
-							break
+							continue
+
+
+						#Download Youtube Video!!
+						print("Downloading " + ourClasses[i] + "( " + c + " ): " + link)
 
 						ydl_opts = {
 						'format': 'bestaudio/best',
