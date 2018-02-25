@@ -10,6 +10,14 @@ def createFolder(path):
 		os.makedirs(path)
 	return
 
+def supported(url):
+	ies = youtube_dl.extractor.gen_extractors()
+	for ie in ies:
+		if ie.suitable(url) and ie.IE_NAME != 'generic':
+			# Site has dedicated extractor
+			return True
+	return False
+
 class MyLogger(object):
 	def debug(self, msg):
 		pass
@@ -26,7 +34,7 @@ def main():
 	#This is in seconds the maximum video length we want to download..
 	#Cropping happens after download so decreasing this will speed up download
 	#but decrease datasize
-	maxVideoLength = 500
+	maxVideoLength = 600
 
 	#Create all the folders!!!
 	createFolder("data/test")
@@ -134,6 +142,10 @@ def main():
 			endSec   = float(row[2])
 			labelsID = row[3:]
 
+			link = 'https://www.youtube.com/watch?v=' + vidID 
+			if not supported(link):
+				continue
+
 			#See if this video is for us!!!
 			for i in range(0, len(ourClasses)):
 				for c in youtubeClassesID[i]:
@@ -143,7 +155,6 @@ def main():
 							continue
 
 						#Download Youtube Video!!
-						link = 'https://www.youtube.com/watch?v=' + vidID 
 						print("Downloading " + ourClasses[i] + "( " + c + " ): " + link)
 
 						#use pafy to check duration!!!
@@ -154,6 +165,64 @@ def main():
 						ydl_opts = {
 						'format': 'bestaudio/best',
 						'outtmpl': 'data/train/rawAudio/' + ourClasses[i] + '/%(id)s.%(ext)s',
+						'postprocessors': [{
+						'key': 'FFmpegExtractAudio',
+						'preferredcodec': 'mp3',
+						}],
+						'logger': MyLogger(),
+						}
+						
+
+						with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+							ydl.download([link])
+						
+						#Crop the audio
+						song = AudioSegment.from_mp3(path_audio)
+						extract = song[1000*startSec: 1000*endSec]
+						extract.export( path_audio , format="mp3")	
+
+
+
+	#Now going to download the raw audio test!!!!!
+	with open("data/eval_segments.csv") as train_file:
+		trainReader = csv.reader(train_file)
+
+		rowCount = 0
+		for row in trainReader:
+			rowCount = rowCount + 1
+
+			#Skip the first 3 rows, do not contain what we want!!
+			if rowCount < 4 :
+				continue
+
+			vidID    = row[0]
+			startSec = float(row[1])
+			endSec   = float(row[2])
+			labelsID = row[3:]
+
+			link = 'https://www.youtube.com/watch?v=' + vidID 
+			if not supported(link):
+				continue
+
+			#See if this video is for us!!!
+			for i in range(0, len(ourClasses)):
+				for c in youtubeClassesID[i]:
+					if c in labelsID:
+						path_audio = "data/test/rawAudio/" + ourClasses[i] + "/" + vidID + ".mp3"
+						if os.path.isfile(path_audio):
+							continue
+
+						#Download Youtube Video!!
+						print("Downloading " + ourClasses[i] + "( " + c + " ): " + link)
+
+						#use pafy to check duration!!!
+						video = pafy.new(link)
+						if( video.length > maxVideoLength):
+							break
+
+						ydl_opts = {
+						'format': 'bestaudio/best',
+						'outtmpl': 'data/test/rawAudio/' + ourClasses[i] + '/%(id)s.%(ext)s',
 						'postprocessors': [{
 						'key': 'FFmpegExtractAudio',
 						'preferredcodec': 'mp3',
