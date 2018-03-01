@@ -101,10 +101,10 @@ def main():
 
 	ourClasses, youtubeClasses, youtubeClassesID, labelsTF = getClasses('classes.csv', "data/ontology.json", 'data/class_labels_indices.csv')
 
-	# ourClasses = ourClasses[7:]
-	# youtubeClasses = youtubeClasses[7:]
-	# youtubeClassesID = youtubeClassesID[7:]
-	# labelsTF = labelsTF[7:]
+	# ourClasses = [ourClasses[3]]
+	# youtubeClasses = [youtubeClasses[3]]
+	# youtubeClassesID = [youtubeClassesID[3]]
+	# labelsTF = [labelsTF[3]]
 
 	#Print to check
 	for i in range(0, len(ourClasses)):
@@ -115,26 +115,23 @@ def main():
 
 
 	#Create all the folders!!!
-	createFolder("data/test")
-	createFolder("data/test/featureCNN")
-	createFolder("data/test/rawAudio")
-	createFolder("data/train")
-	createFolder("data/train/featureCNN")
-	createFolder("data/train/rawAudio")
+	createFolder("data/test_rawAudio")
+	createFolder("data/train_rawAudio")
 
 	for c in ourClasses:
-		createFolder("data/test/featureCNN/" + c)
-		createFolder("data/train/featureCNN/" + c)
-		createFolder("data/test/rawAudio/" + c)
-		createFolder("data/train/rawAudio/" + c)
+		createFolder("data/test_rawAudio/" + c)
+		createFolder("data/train_rawAudio/" + c)
 
+	
 	#Download the raw train set
 	print("====Downloading Train Data====")
-	downloadYoutubeCSV("data/unbalanced_train_segments.csv", "data/temp_train4.mp3", "data/train/rawAudio/", ourClasses, youtubeClassesID, startRow=260000)
+	downloadYoutubeCSV("data/unbalanced_train_segments.csv", "data/temp_train4.mp3", "data/train_rawAudio/", ourClasses, youtubeClassesID, startRow=500000)
+
+	return
 
 	#Download the raw test set
 	print("====Downloading Test  Data====")
-	downloadYoutubeCSV("data/eval_segments.csv", "data/temp_test.mp3", "data/test/rawAudio/", ourClasses, youtubeClassesID)
+	downloadYoutubeCSV("data/eval_segments.csv", "data/temp_test.mp3", "data/test_rawAudio/", ourClasses, youtubeClassesID)
 
 
 	
