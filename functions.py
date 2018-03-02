@@ -1,6 +1,7 @@
 import os
 import json
 import csv
+import numpy as np
 
 
 def createFolder(path):
@@ -90,5 +91,6 @@ def getClasses(pathOurClassesCSV, pathYoutubeOntologyJSON, pathYoutubeClassLabel
 
 
 
-	return ourClasses, youtubeClasses, youtubeClassesID
+	return ourClasses, youtubeClasses, youtubeClassesID, labelsTF
+
 
